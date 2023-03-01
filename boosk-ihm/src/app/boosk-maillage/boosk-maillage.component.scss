@@ -1,0 +1,16 @@
+$canvas-width: 80%;
+$canvas-height: 80%;
+
+.maillage-electrique {
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+
+    #canva {
+        width: $canvas-width;
+        height: $canvas-height;
+    }
+}
+  
