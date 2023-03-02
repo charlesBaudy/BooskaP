@@ -2,12 +2,14 @@ import express from "express"
 
 const router = express.Router();
 
-router.get("/getAll", (req, res) => {
-    console.log("get all cable");
-});
+const cableCtrl = require('../controllers/cable.controller')
 
-router.get("/getById", (req, res) => {
-    console.log("get one cable");
+router.get("/getAll", cableCtrl.getAllCables);
+
+router.get("/getById", cableCtrl.getCableById);
+
+router.get("/", (req, res)=> {
+    res.send("bienvenu sur cable")
 });
 
 export = router;

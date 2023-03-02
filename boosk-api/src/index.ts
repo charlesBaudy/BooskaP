@@ -1,10 +1,12 @@
 import express from "express";
 import { AppDataSource } from "./data-source";
+import { Cable } from "./models/cable";
+import { Ild } from "./models/ild";
 
 const app = express();
 
 AppDataSource.initialize()
-    .then(()=>{
+    .then(async ()=>{
         console.log("connected to booska-db");
     })
     .catch(err=> console.error(err));

@@ -1,9 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Cable } from "./cable";
 
 @Entity()
 export class Ild {
     @PrimaryGeneratedColumn()
-    public id: number;
+    public id!: number;
     @Column()
     public ok: boolean;
     @Column()
@@ -13,8 +14,7 @@ export class Ild {
     @Column()
     public isSource: boolean;
 
-    constructor(id: number, ok: boolean, x: number, y: number, isSource: boolean) {
-        this.id = id;
+    constructor(ok: boolean, x: number, y: number, isSource: boolean) {
         this.ok = ok;
         this.x = x;
         this.y= y;

@@ -1,23 +1,21 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Ild } from "./ild";
 
 @Entity()
 export class Cable {
     @PrimaryGeneratedColumn()
-    public id: number;
-    @OneToOne(()=> Ild)
-    @JoinColumn()
-    public from: Ild;
-    @OneToOne(()=> Ild)
-    @JoinColumn()
-    public to: Ild;
+    public id!: number;
+    @ManyToMany(()=> Ild)
+    @JoinTable()
+    public relations: Ild[];
     @Column()
     public ok: boolean;
+    @Column()
+    public length: number;
     
-    constructor(id: number, ok: boolean, from: Ild, to: Ild) {
-        this.id = id;
+    constructor(ok: boolean, relations: Ild[],length: number) {
         this.ok = ok;
-        this.from = from;
-        this.to= to;
+        this.relations = relations;
+        this.length = length
     }
 }

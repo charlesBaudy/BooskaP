@@ -2,18 +2,16 @@ import express from "express"
 
 const router = express.Router();
 
-router.get("/getAll", (req, res) => {
-    console.log("get all ild");
-    
-});
+const IldCtrl = require('../controllers/ild.controller')
 
-router.get("/getById", (req, res) => {
-    console.log("get one ild");
-    
-});
+router.get("/getAll", IldCtrl.getAll);
 
-router.post("/setOk", (req, res) => {
-    console.log("set ok ild");
+router.get("/getById", IldCtrl.getById);
+
+router.get("/setOk", IldCtrl.setOk);
+
+router.get("/", (req, res)=> {
+    res.send("bienvenu sur ild")
 });
 
 export = router;

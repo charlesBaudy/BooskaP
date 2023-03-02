@@ -1,5 +1,4 @@
 import express from "express"
-import { route } from "./ild.routes";
 
 const router = express.Router();
 
@@ -10,5 +9,9 @@ const cableRoutes = require('./cable.routes');
 router.use("/cables", cableRoutes);
 
 router.use("/ild", ildRoutes);
+
+router.get("/", (req, res)=> {
+    res.send("bienvenu")
+});
 
 export = router
