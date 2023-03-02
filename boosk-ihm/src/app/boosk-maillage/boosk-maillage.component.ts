@@ -1,5 +1,12 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { fabric } from 'fabric';
+import { Canvas } from 'fabric/fabric-impl';
+import { Cable } from '../models/cable';
+import { Ild } from '../models/ild';
+import { CablesService } from '../services/cables.service';
+import { IldsService } from '../services/ilds.service';
+import { take } from 'rxjs/Operators';
+
 
 @Component({
   selector: 'app-boosk-maillage',
@@ -12,86 +19,90 @@ export class BooskMaillageComponent implements OnInit {
 
   canvas = new fabric.Canvas('canvas');
 
+  cables! : Cable[];
+  ilds! : Ild[];
+
+  constructor(private cableService : CablesService, private ildsService : IldsService){}
+
   ngOnInit() {
     this.canvas = new fabric.Canvas(this.canvasRef.nativeElement);
 
-    // Dessin du maillage électrique
-    const line2 = new fabric.Line([100, 50, 150, 100], { stroke: 'black', strokeWidth: 2 });
-    const line3 = new fabric.Line([150, 100, 200, 100], { stroke: 'black', strokeWidth: 2 });
-    const line4 = new fabric.Line([200, 100, 250, 150], { stroke: 'black', strokeWidth: 2 });
-    const line5 = new fabric.Line([250, 150, 300, 150], { stroke: 'black', strokeWidth: 2 });
-    const line6 = new fabric.Line([300, 150, 350, 200], { stroke: 'black', strokeWidth: 2 });
-    const line7 = new fabric.Line([350, 200, 400, 200], { stroke: 'black', strokeWidth: 2 });
+    this.cableService.getAllCables()
+    .pipe(take(1))
+    .subscribe(cables => {
+      this.cables = cables
+      console.log(this.cables);
+      this.ilds = [];
+      cables.forEach(cable => {
+        cable.relations.forEach(ild => {
+          let a = this.ilds.find(x => x.id === ild.id)
+          if(!a){
+            this.ilds.push(ild);
+          }
+        })
+      })
+      console.log(this.ilds);
+      drawCables(this.cables, this.canvas);
+      drawIlds(this.ilds, this.canvas);
+    });
 
-    //this.canvas.add(line1, line2, line3, line4, line5, line6, line7);
-
-    // Dessin des marqueurs
-    const ildPositions = [
-      //Numéro 1
-      [208, 110],
-      //Numéro 2
-      [400, 110],
-      //Numéro 3
-      [592, 110],
-      //Numéro 4
-      [730, 270],
-      //Numéro 5
-      [592, 430],
-      //Numéro 6
-      [400, 430],
-      //Numéro 7
-      [208, 430],
-      //Numéro 8
-      [400, 270],
-      //Numéro 9
-      [70, 270],
-      
-    ];
-
-    function randomBoolean(): boolean {
-      return Math.random() < 0.8;
+    
+    function drawCables(cables : Cable[],  canvas : Canvas){
+      cables.forEach((cable) =>{
+        let x1 = cable.relations[0].x+18;
+        let y1 = cable.relations[0].y+18;
+        let x2 = cable.relations[1].x+18;
+        let y2 = cable.relations[1].y+18; 
+        let line = new fabric.Line([x1, y1, x2, y2], { stroke: 'black', strokeWidth: 2 }); 
+        canvas.add(line);
+      })
     }
 
-    function setState(): string {
-      if (randomBoolean()){
+    function drawIlds(ilds : Ild[], canvas : Canvas):void{
+      ilds.forEach((ild) => {
+        const circle = new fabric.Circle({
+          left: ild.x,
+          top: ild.y,
+          radius: 18,
+          fill: setState(ild),
+          stroke: 'black',
+          strokeWidth: 2,
+          selectable: false,
+        });
+  
+        const text = new fabric.Text(String(ild.id), {
+          left: ild.x,
+          top: ild.y,
+          fontSize: 20,
+          fontFamily: 'Arial',
+          fill: 'white',
+          selectable: false,
+          textAlign : 'center',
+        });
+  
+        // Centrer le texte dans le cercle
+        const textLeft = ild.x + 12.5;
+        const textTop = ild.y + 7.5;
+  
+        text.set({
+          left: textLeft,
+          top: textTop
+        });
+  
+        canvas.add(circle, text);
+      });
+    }
+
+    function setState(ild : Ild): string {
+      if (ild.ok && !ild.isSource){
         return 'green';
+      }
+      else if (ild.isSource){
+        return 'blue';
       }
       else{
         return 'red';
       }
     }
-
-    ildPositions.forEach((position, index) => {
-      const circle = new fabric.Circle({
-        left: position[0],
-        top: position[1],
-        radius: 18,
-        fill: setState(),
-        stroke: 'black',
-        strokeWidth: 2,
-        selectable: false,
-      });
-
-      const text = new fabric.Text(String(index+1), {
-        left: position[0],
-        top: position[1],
-        fontSize: 20,
-        fontFamily: 'Arial',
-        fill: 'white',
-        selectable: false,
-        textAlign : 'center',
-      });
-
-      // Centrer le texte dans le cercle
-      const textLeft = position[0] + 12.5;
-      const textTop = position[1] + 7.5;
-
-      text.set({
-        left: textLeft,
-        top: textTop
-      });
-
-      this.canvas.add(circle, text);
-    });
   }
 }

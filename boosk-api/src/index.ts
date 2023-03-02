@@ -5,6 +5,9 @@ import { Ild } from "./models/ild";
 
 const app = express();
 
+var cors = require('cors');
+app.use(cors());
+
 AppDataSource.initialize()
     .then(async ()=>{
         console.log("connected to booska-db");
