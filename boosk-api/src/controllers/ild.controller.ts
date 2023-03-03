@@ -42,7 +42,10 @@ exports.setOk = async (req: Request, res: Response) => {
         if (ildToUpdate) {
             ildToUpdate.ok = value === "true";
             await repository.save(ildToUpdate);
-            res.status(200).send(`ILD ${id} state updated to ${value}`)
+            res.status(200).json({
+                "message":`ILD ${id} state updated to ${value}`,
+                "status": 200
+            });
         } else {
             res.status(404).send(`ild ${id} not found`);
         }
