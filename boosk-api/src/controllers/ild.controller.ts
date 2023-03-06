@@ -5,7 +5,7 @@ import { Ild } from "../models/ild";
 exports.getAll = async (req: Request, res: Response) => {
     const repository = AppDataSource.getRepository(Ild);
 
-    const allILD = await repository.find();
+    const allILD = await repository.createQueryBuilder("ild").orderBy("ild.id", "ASC").getMany()
 
     res.status(200).json(allILD);
 }
