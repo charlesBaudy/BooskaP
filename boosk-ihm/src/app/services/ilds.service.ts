@@ -8,7 +8,7 @@ import { Ild } from '../models/ild';
 })
 export class IldsService {
 
-  private apiIldUrl = 'http://localhost:3000/api/ild/'
+  private apiIldUrl = 'http://localhost:3000/api/ild'
 
   constructor(private http: HttpClient) { }
 
