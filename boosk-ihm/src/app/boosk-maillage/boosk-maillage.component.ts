@@ -87,7 +87,14 @@ export class BooskMaillageComponent implements OnInit {
                         this.ildsService.setIldOk(clickedIld.id, clickedIld.ok).subscribe((res) => {
                             if (posteSource && res.status === 200) {
                                 selectedIld = clickedIld;
-                                this.dijkstra(this.cables, this.ilds, posteSource, destination);
+                                if(!selectedIld.ok){
+                                  this.dijkstra(this.cables, this.ilds, posteSource, destination);
+                                }
+                                else{
+                                  this.deleteLigne();
+                                  this.drawCables(this.cables, this.canvas);
+                                }
+                                
                                 this.drawIlds(this.ilds, this.canvas);
                             }
                         });
@@ -101,6 +108,20 @@ export class BooskMaillageComponent implements OnInit {
       
 
     });
+  }
+
+  deleteLigne(){
+    this.canvas.getObjects('line').forEach((obj) => {
+      if (obj.stroke === 'black' || obj.stroke === 'yellow') {
+        this.canvas.remove(obj);
+      }
+    });
+
+    this.canvas.getObjects('text').forEach((obj) =>{
+      if (obj.fill === "#FFFEFE"){
+        this.canvas.remove(obj);
+      }
+    })
   }
 
 
@@ -166,6 +187,9 @@ export class BooskMaillageComponent implements OnInit {
       }
       console.log(cableSurChemin); 
     }
+
+    
+    this.deleteLigne();
     this.drawCables(cables, this.canvas);
     this.drawCables(cableSurChemin, this.canvas, cableSurChemin);
     
@@ -235,19 +259,19 @@ export class BooskMaillageComponent implements OnInit {
         color = "black"
       }
 
-
-
-
-      let line = new fabric.Line([x1, y1, x2, y2], { stroke: color, strokeWidth: 2 }); 
+      let line = new fabric.Line([x1, y1, x2, y2], { stroke: color, strokeWidth: 2, selectable : false}); 
       let label = new fabric.Text(cable.length.toString(), {
-        left: ((x1 + x2) / 2)+2,
-        top: ((y1 + y2) / 2)+10 ,
+        left: ((x1 + x2) / 2)-4,
+        top: ((y1 + y2) / 2) -7,
         fontSize: 14,
-        fill: 'black',
-        selectable : false
+        fill: '#FFFEFE',
+        selectable : false,
+        fontWeight : 'bold'
       })
-      canvas.add(label);
       canvas.add(line);
+      if(!chemin){
+        canvas.add(label);
+      }
     })
   }
 }

@@ -10,7 +10,9 @@ import { Cable } from '../models/cable';
 })
 export class CablesService {
 
-  private apiCableUrl = 'http://localhost:3000/api/cables'
+  // private apiCableUrl = 'http://localhost:3000/api/cables';
+
+  private apiCableUrl = 'http://ec2-18-117-154-6.us-east-2.compute.amazonaws.com:3000/api/cables';
 
   constructor(private http: HttpClient) { }
 
