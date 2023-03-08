@@ -5,13 +5,14 @@ import { Cable } from '../models/cable';
 import { Ild } from '../models/ild';
 import { CablesService } from '../services/cables.service';
 import { IldsService } from '../services/ilds.service';
-import { map, switchMap, take } from 'rxjs/Operators';
+import { take } from 'rxjs/Operators';
+import { SocketService } from '../services/socket.service';
 
 
 @Component({
   selector: 'app-boosk-maillage',
   templateUrl: './boosk-maillage.component.html',
-  styleUrls: ['./boosk-maillage.component.scss'] 
+  styleUrls: ['./boosk-maillage.component.scss']
 })
 export class BooskMaillageComponent implements OnInit {
   @ViewChild('canvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -24,7 +25,25 @@ export class BooskMaillageComponent implements OnInit {
 
   selectedObject: fabric.Object | undefined;
 
-  constructor(private cableService : CablesService, private ildsService : IldsService){}
+  posteSource!: Ild;
+
+  constructor(
+    private cableService : CablesService,
+    private ildsService : IldsService,
+    private socketService: SocketService
+  ) {
+      this.socketService.listenToServer('Change').subscribe(change=>{
+        this.ilds.forEach(ild=>{
+          if(ild.id === change.id) {
+            ild.ok = false;
+          } else {
+            ild.ok = true;
+          }
+        });
+        this.dijkstra(this.cables, this.ilds, this.posteSource, change);
+        this.drawIlds(this.ilds,this.canvas);
+      })
+  }
 
   ngOnInit() {
     this.canvas = new fabric.Canvas(this.canvasRef.nativeElement);
@@ -38,6 +57,9 @@ export class BooskMaillageComponent implements OnInit {
       cables.forEach(cable => {
         cable.relations.forEach(ild => {
           let a = this.ilds.find(x => x.id === ild.id)
+          if(!this.posteSource && ild.id ===9){
+            this.posteSource = ild;
+          }
           if(!a){
             this.ilds.push(ild);
           }
@@ -52,38 +74,32 @@ export class BooskMaillageComponent implements OnInit {
       this.canvas.on('mouse:down', (event) => {
         if (event.target) {
             let pts = event.pointer;
-            let selectedIld: Ild | undefined = undefined; 
-    
+            let selectedIld: Ild | undefined = undefined;
+
             this.ilds.forEach((ild) => {
-                if (
-                    pts &&
-                    pts.x > ild.x &&
-                    pts.x < ild.x + 36 &&
-                    pts.y > ild.y &&
-                    pts.y < ild.y + 36
-                ) {
+                if (pts &&pts.x > ild.x &&pts.x < ild.x + 36 &&pts.y > ild.y &&pts.y < ild.y + 36) {
                     let destination = ild;
                     let clickedIld = ild;
-    
+
                     if (!ild.isSource) {
                         let newOkValue: boolean;
-    
+
                         if (ild.ok) {
                             newOkValue = false;
                         } else {
                             newOkValue = true;
                         }
-    
+
                         this.ilds.forEach(otherIld => {
                             if (otherIld.id === clickedIld.id) {
                                 otherIld.ok = newOkValue;
                             } else {
                                 otherIld.ok = true;
                             }
-    
+
                             this.ildsService.setIldOk(otherIld.id, otherIld.ok).subscribe();
                         });
-    
+
                         this.ildsService.setIldOk(clickedIld.id, clickedIld.ok).subscribe((res) => {
                             if (posteSource && res.status === 200) {
                                 selectedIld = clickedIld;
@@ -94,7 +110,7 @@ export class BooskMaillageComponent implements OnInit {
                                   this.deleteLigne();
                                   this.drawCables(this.cables, this.canvas);
                                 }
-                                
+
                                 this.drawIlds(this.ilds, this.canvas);
                             }
                         });
@@ -103,9 +119,9 @@ export class BooskMaillageComponent implements OnInit {
             });
         }
     });
-     
-      
-      
+
+
+
 
     });
   }
@@ -185,14 +201,14 @@ export class BooskMaillageComponent implements OnInit {
       if(cable){
         cableSurChemin.push(cable);
       }
-      console.log(cableSurChemin); 
+      console.log(cableSurChemin);
     }
 
-    
+
     this.deleteLigne();
     this.drawCables(cables, this.canvas);
     this.drawCables(cableSurChemin, this.canvas, cableSurChemin);
-    
+
     return path;
   }
 
@@ -230,7 +246,7 @@ export class BooskMaillageComponent implements OnInit {
       canvas.add(circle, text);
     });
 
-    
+
   }
 
   setState(ild : Ild): string {
@@ -259,7 +275,7 @@ export class BooskMaillageComponent implements OnInit {
         color = "black"
       }
 
-      let line = new fabric.Line([x1, y1, x2, y2], { stroke: color, strokeWidth: 2, selectable : false}); 
+      let line = new fabric.Line([x1, y1, x2, y2], { stroke: color, strokeWidth: 2, selectable : false});
       let label = new fabric.Text(cable.length.toString(), {
         left: ((x1 + x2) / 2)-4,
         top: ((y1 + y2) / 2) -7,

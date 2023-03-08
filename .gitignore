@@ -1,2 +1,4 @@
 boosk-api/node_modules
 boosk-api/dist
+boosk-api/package-lock.json
+boosk-ihm/package-lock.json
