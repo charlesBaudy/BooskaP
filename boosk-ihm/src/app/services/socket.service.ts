@@ -11,7 +11,7 @@ export class SocketService {
   private clientSocket: Socket
 
   constructor() {
-    this.clientSocket = socketIo.connect("http://localhost:3000");
+    this.clientSocket = socketIo.connect("http://ec2-18-117-154-6.us-east-2.compute.amazonaws.com:3000");
   }
 
   listenToServer(connection: any): Observable<any> {
