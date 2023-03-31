@@ -2,6 +2,11 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source"
 import { Cable } from "../models/cable"
 
+
+/**
+ * Récupère tous les câbles de la base de données avec toutes leurs relations 
+ * Renvoie un objet JSON contenant tous les câbles.
+ */
 exports.getAllCables = async (req: Request, res: Response) => {
     const cableRepository = AppDataSource.getRepository(Cable);
 
@@ -14,6 +19,11 @@ exports.getAllCables = async (req: Request, res: Response) => {
     res.status(200).json(allCables);
 }
 
+
+/**
+ * Récupère un câble par son identifiant
+ * Renvoie un objet JSON contenant les informations de ce câble.
+ */
 exports.getCableById = async (req: Request, res: Response) => {
     if (req.query.cableId) {
         const cableId = req.query.cableId;
@@ -33,6 +43,10 @@ exports.getCableById = async (req: Request, res: Response) => {
     }
 }
 
+/**
+ * Met à jour l'état d'un câble dans la base de données en fonction des paramètres donnés
+ * Renvoie une réponse HTTP 200 si la mise à jour est effectuée avec succès.
+ */
 exports.setOk = async (req: Request, res: Response) => {
     if(req.query.id && req.query.value) {
         const id = req.body.id;

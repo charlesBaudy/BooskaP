@@ -17,8 +17,6 @@ export class Ild {
     @AfterUpdate()
     async afterUpdate() {
         if (!this.ok) {
-            // La valeur de la colonne "ok" est passée de "true" à "false"
-            // Émettez un événement ou exécutez le code correspondant ici
             io.sockets.emit('Change', this);
             console.log(`ild ${this.id} state is updated to ${this.ok}`);
         }

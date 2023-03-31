@@ -126,19 +126,28 @@ export class BooskMaillageComponent implements OnInit {
     });
   }
 
-  deleteLigne(){
+  /**
+  * Cette fonction supprime toutes les lignes (lines) et les textes ayant une couleur de trait en noir ou en jaune
+  * ainsi que tous les textes ayant une couleur de remplissage en blanc cassé (#FFFEFE) dans le canvas.
+  */
+
+  deleteLigne() {
+
     this.canvas.getObjects('line').forEach((obj) => {
       if (obj.stroke === 'black' || obj.stroke === 'yellow') {
+  
         this.canvas.remove(obj);
       }
     });
-
-    this.canvas.getObjects('text').forEach((obj) =>{
-      if (obj.fill === "#FFFEFE"){
+    this.canvas.getObjects('text').forEach((obj) => {
+  
+      if (obj.fill === "#FFFEFE") {
+  
         this.canvas.remove(obj);
       }
     })
   }
+  
 
 
   dijkstra(cables : Cable[], ilds : Ild[], sourceIld: Ild, destinationIld: Ild): Ild[] {
@@ -212,18 +221,32 @@ export class BooskMaillageComponent implements OnInit {
     return path;
   }
 
-  drawIlds(ilds : Ild[], canvas : Canvas):void{
+
+  /**
+  *
+  * Cette fonction dessine des cercles représentant les objets Ild sur un canvas.
+  * Pour chaque objet Ild, un cercle est créé avec la méthode "fabric.Circle" de la bibliothèque Fabric.js.
+  * La couleur de remplissage du cercle est déterminée en appelant la fonction "setState".
+  * Un texte représentant l'identifiant de l'Ild est ajouté à l'intérieur de chaque cercle avec la méthode "fabric.Text".
+  * Le texte est centré dans le cercle en ajustant sa position avec les variables "textLeft" et "textTop".
+  * @param ilds - Un tableau d'objets Ild
+  * @param canvas - Le canvas sur lequel dessiner les cercles
+*/
+
+  drawIlds(ilds: Ild[], canvas: Canvas): void {
+
     ilds.forEach((ild) => {
+  
       const circle = new fabric.Circle({
         left: ild.x,
         top: ild.y,
         radius: 18,
-        fill: this.setState(ild),
+        fill: this.setState(ild), 
         stroke: 'black',
         strokeWidth: 2,
         selectable: false,
       });
-
+  
       const text = new fabric.Text(String(ild.id), {
         left: ild.x,
         top: ild.y,
@@ -231,24 +254,31 @@ export class BooskMaillageComponent implements OnInit {
         fontFamily: 'Arial',
         fill: 'white',
         selectable: false,
-        textAlign : 'center',
+        textAlign: 'center',
       });
-
-      // Centrer le texte dans le cercle
+  
       const textLeft = ild.x + 12.5;
       const textTop = ild.y + 7.5;
-
+  
       text.set({
         left: textLeft,
         top: textTop
       });
-
+  
       canvas.add(circle, text);
     });
-
-
   }
-
+  
+  /** 
+  * Cette fonction prend en entrée un objet Ild et renvoie une chaîne de caractères
+  * qui représente la couleur de remplissage appropriée pour le cercle du Ild.
+  * La couleur est déterminée en fonction de l'état de l'objet Ild :
+  *   - Si ild.ok est vrai et ild.isSource est faux, la couleur est "green"
+  *   - Si ild.isSource est vrai, la couleur est "blue"
+  *   - Sinon, la couleur est "red"
+  * @param ild : l'objet Ild dont la couleur de remplissage doit être déterminée
+  * @returns la chaîne de caractères représentant la couleur de remplissage appropriée
+  */
   setState(ild : Ild): string {
     if (ild.ok && !ild.isSource){
       return 'green';
@@ -261,7 +291,15 @@ export class BooskMaillageComponent implements OnInit {
     }
   }
 
-
+  /**
+ * Cette fonction prend en entrée un tableau d'objets Cable, un objet Canvas et un tableau optionnel Cable qui représente un chemin,
+ * et dessine les câbles sur le Canvas.
+ * Chaque objet Cable est représenté par une ligne entre ses deux relations et un label indiquant sa longueur.
+ * Si un chemin est fourni, les câbles sur le chemin seront colorés en jaune.
+ * @param cables : le tableau d'objets Cable à dessiner
+ * @param canvas : l'objet Canvas sur lequel dessiner les câbles
+ * @param chemin (optionnel) : un tableau d'objets Cable représentant un chemin à colorer en jaune
+ */
   drawCables(cables : Cable[],  canvas : Canvas, chemin? : Cable[]){
     cables.forEach((cable) =>{
       let color : string;
